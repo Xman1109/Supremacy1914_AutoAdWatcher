@@ -14,7 +14,7 @@ pip install -r requirements.txt
 1. Open BlueStacks 5
 2. Open Supremacy1914 on BlueStacks (if you haven't installed it yet, do so)
 3. Click the Button that displays the section where you can get prizes by watching ads
-4. Execute the **AdWatcher.py** File
+4. Execute the **AdWatcher.py** File, and go back to BlueStacks
 5. Now go grab a coffee and dont touch your mouse or keyboard
 
 # Troubleshooting
