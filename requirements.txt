@@ -1,3 +1,4 @@
 pyautogui
 keyboard
 opencv-python
+win32gui

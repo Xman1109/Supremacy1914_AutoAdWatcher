@@ -2,7 +2,8 @@ from pyautogui import *
 import pyautogui
 import time
 import keyboard
-import cv2
+import cv2  # used for the confidence level of the detection
+import win32gui
 from os import listdir
 
 #######################
@@ -13,15 +14,31 @@ getFinalAd = True
 getAdArea = True
 #######################
 
+x = int(pyautogui.size()[0]/2 - 250)
 path = os.path.dirname(os.path.abspath(__file__))+"/".replace("\\", "/")
 
-print("Waiting for BlueStacks to be in foreground...")
-
+if win32gui.FindWindow(None, "BlueStacks") != 0:  # if BlueStacks is running
+    win = win32gui.FindWindow(None, "BlueStacks")
+    win32gui.SetForegroundWindow(win)
+    win32gui.SetActiveWindow(win)
+    if pyautogui.getWindowsWithTitle("BlueStacks")[  # rotate the screen and resize the window
+            0].width > pyautogui.getWindowsWithTitle("BlueStacks")[
+            0].height:
+        keyboard.press_and_release("strg+shift+4")
+        time.sleep(1.5)
+    win32gui.MoveWindow(win, x, 0, 500, 860, True)
+    win32gui.UpdateWindow(win)
+else:
+    print("BlueStacks not found")
+    time.sleep(3)
+    exit()
 
 while 1:
-    if pyautogui.getActiveWindowTitle() == "BlueStacks":
-        print("BlueStacks is in foreground...")
+    if win32gui.FindWindow(None, "BlueStacks") != 0:
         print("Starting...")
+        print("Note: Hold F5 to exit")
+        if keyboard.is_pressed("F5"):
+            break
         while 1:
             if keyboard.is_pressed("F5"):  # Hold F5 to exit
                 break
@@ -33,7 +50,7 @@ while 1:
             bluestacks_width = pyautogui.getWindowsWithTitle("BlueStacks")[
                 0].width - 375
             bluestacks_height = pyautogui.getWindowsWithTitle("BlueStacks")[
-                0].height - 635
+                0].height - 685
 
             # The Area of the entire BlueStacks window
             bluestacks_window_x = pyautogui.getWindowsWithTitle('BlueStacks')[
@@ -50,7 +67,7 @@ while 1:
 
             for i in cross:  # Go through all the images in the src/cross folder and compare them to the screen
                 cross_location = pyautogui.locateOnScreen(
-                    path+"src/cross/"+i, region=(bluestacks_x, bluestacks_y, bluestacks_width, bluestacks_height), confidence=0.8)
+                    path+"src/cross/"+i, region=(bluestacks_x, bluestacks_y, bluestacks_width, bluestacks_height), confidence=0.75)
                 if getAdArea:
                     if path+"ad_cap_area.png" in listdir(path):
                         os.remove(path+"ad_cap_area.png")
@@ -71,7 +88,7 @@ while 1:
                     time.sleep(1)
 
             # Check if this was the last Ad
-            FinalAdCollected = pyautogui.locateOnScreen(path+"src/FinalAdCollected.png", confidence=0.75, region=(
+            FinalAdCollected = pyautogui.locateOnScreen(path+"src/FinalAdCollected.png", confidence=0.9, region=(
                 bluestacks_window_x, bluestacks_window_y, bluestacks_window_width, bluestacks_window_height))
             if path+"cap_area.png" in listdir(path):
                 os.remove(path+"cap_area.png")
@@ -90,10 +107,10 @@ while 1:
                 exit()
 
             # Check if there is another Ad to collect
-            NextAd = pyautogui.locateOnScreen(path+"src/WatchAd.png", confidence=0.75, region=(
+            NextAd = pyautogui.locateOnScreen(path+"src/WatchAd.png", confidence=0.5, region=(
                 bluestacks_window_x, bluestacks_window_y, bluestacks_window_width, bluestacks_window_height))
             if NextAd is not None:
-                time.sleep(2)
+                time.sleep(4)
                 pyautogui.click(NextAd)
                 print("Clicked Next Ad")
                 time.sleep(32)
@@ -109,3 +126,21 @@ while 1:
                 pyautogui.scroll(-100)
                 print("Could not find Next Ad, scrolling down")
             time.sleep(2)
+    else:
+        # If BlueStacks is not found exit the program
+        if win32gui.FindWindow(None, "BlueStacks") == None:
+            print(
+                "BlueStacks got closed... \n If this is a bug, please report it on the github page")
+            time.sleep(3)
+            exit()
+        else:
+            win = win32gui.FindWindow(None, "BlueStacks")
+            win32gui.SetForegroundWindow(win)
+            win32gui.SetActiveWindow(win)
+            if pyautogui.getWindowsWithTitle("BlueStacks")[
+                    0].width > pyautogui.getWindowsWithTitle("BlueStacks")[
+                    0].height:
+                keyboard.press_and_release("strg+shift+4")
+                time.sleep(1.5)
+            win32gui.MoveWindow(win, x, 0, 500, 860, True)
+            win32gui.UpdateWindow(win)
