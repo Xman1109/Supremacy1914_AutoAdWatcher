@@ -4,6 +4,7 @@ import time
 import keyboard
 import cv2  # used for the confidence level of the detection
 import win32gui
+import os
 from os import listdir
 
 #######################
@@ -77,28 +78,41 @@ while 1:
 
             for i in cross:  # Go through all the images in the src/cross folder and compare them to the screen
                 cross_location = pyautogui.locateOnScreen(
-                    path+"src/cross/"+i, region=(bluestacks_window_x, bluestacks_y, bluestacks_window_width, bluestacks_height), confidence=0.75)
+                    path+"src/cross/"+i, region=(bluestacks_window_x, bluestacks_y + 33, 40, bluestacks_height), confidence=0.75)
+                cross_location2 = pyautogui.locateOnScreen(
+                    path+"src/cross/"+i, region=(bluestacks_window_x + bluestacks_window_width - 77, bluestacks_y + 33, 40, bluestacks_height), confidence=0.75)
+                if cross_location is not None:  # If the image is found on the screen then click the cross to end the Ad
+                    if getDetectedCross:
+                        if path+"cross_found.png" in listdir(path):
+                            os.remove(path+"cross_found.png")
+                        screenshot = pyautogui.screenshot(
+                            region=(bluestacks_window_x, bluestacks_y + 33, 40, bluestacks_height))
+                        screenshot.save(path +
+                                        "cross_found.png")
+                    time.sleep(1)
+                    pyautogui.click(cross_location)
+                    print("Clicked cross left")
+                    blockScrolling = False
+                    time.sleep(1.5)
+                elif cross_location2 is not None:
+                    if getDetectedCross:
+                        if path+"cross_found.png" in listdir(path):
+                            os.remove(path+"cross_found.png")
+                        screenshot = pyautogui.screenshot(
+                            region=(bluestacks_window_x + bluestacks_window_width - 77, bluestacks_y + 33, 40, bluestacks_height))
+                        screenshot.save(path +
+                                        "cross_found2.png")
+                    time.sleep(1)
+                    pyautogui.click(cross_location2)
+                    print("Clicked cross right")
+                    blockScrolling = False
+                    time.sleep(1.5)
                 if getAdArea:
                     if path+"ad_cap_area.png" in listdir(path):
                         os.remove(path+"ad_cap_area.png")
                     screenshot = pyautogui.screenshot(region=(
                         bluestacks_x, bluestacks_y, bluestacks_window_width, bluestacks_height))
                     screenshot.save(path+"ad_cap_area.png")
-                if cross_location is not None:  # If the image is found on the screen then click the cross to end the Ad
-                    time.sleep(0.5)
-                    pyautogui.click(cross_location)
-                    print("Clicked cross")
-                    blockScrolling = False
-                    if getDetectedCross:
-                        if path+"cross_found.png" in listdir(path):
-                            os.remove(path+"cross_found.png")
-                        screenshot = pyautogui.screenshot(region=(
-                            cross_location[0], cross_location[1], cross_location[2], cross_location[3]))
-                        screenshot.save(path +
-                                        "cross_found.png")
-                    time.sleep(1)
-
-            if numberOfClickedAds < 8:
 
                 # Check if this was the last Ad
                 FinalAdCollected = pyautogui.locateOnScreen(path+"src/FinalAdCollected.png", confidence=0.975, region=(
@@ -119,11 +133,12 @@ while 1:
                     time.sleep(3)
                     exit()
 
+            if numberOfClickedAds < 8:
                 # Check if there is another Ad to collect
                 NextAd = pyautogui.locateOnScreen(path+"src/WatchAd.png", confidence=0.5, region=(
                     bluestacks_window_x, bluestacks_window_y, bluestacks_window_width, bluestacks_window_height))
                 if NextAd is not None:
-                    time.sleep(1)
+                    time.sleep(2.5)
                     pyautogui.click(NextAd)
                     blockScrolling = True
                     numberOfClickedAds = numberOfClickedAds + 1
